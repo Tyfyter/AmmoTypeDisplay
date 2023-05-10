@@ -1,4 +1,4 @@
 displayName = Ammo Type Display
 author = Tyfyter2002
-version = 0.1
+version = 1.0
 Side = Client

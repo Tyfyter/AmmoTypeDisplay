@@ -107,6 +107,17 @@ namespace AmmoTypeDisplay {
 					ammoName = Lang.GetItemName(item.useAmmo).ToString();
 				}
 				tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{item.useAmmo}] Uses {ammoName}"));
+			} else if (item.fishingPole > 1 && AmmoDisplayConfig.Instance.consumerTooltips) {
+				int id = -1;
+				Item[] inventory = Main.LocalPlayer.inventory;
+				for (int i = 54; i >= 54 || i < 50; i++) {
+					if (i >= 58) i = 0;
+					if (inventory[i].stack > 0 && inventory[i].bait > 0) {
+						id = inventory[i].type;
+						break;
+					}
+				}
+				if (id >= 0) tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{id}] Using {Lang.GetItemName(id)}"));
 			} else if (item.ammo > 0 && AmmoDisplayConfig.Instance.ammoTooltips) {
 				string ammoName = Lang.GetItemName(item.ammo).ToString();
 				bool display = item.ammo != item.type;
@@ -132,6 +143,7 @@ namespace AmmoTypeDisplay {
 				case ItemSlot.Context.TrashItem:
 				if (
 					(item.ammo > 0 && AmmoDisplayConfig.Instance.highlightAmmo && DisplaySystem.hoverItem?.useAmmo == item.ammo) ||
+					(item.bait > 0 && AmmoDisplayConfig.Instance.highlightAmmo && DisplaySystem.hoverItem?.fishingPole > 1) ||
 					(item.useAmmo > 0 && AmmoDisplayConfig.Instance.highlightConsumer && DisplaySystem.hoverItem?.ammo == item.useAmmo)) {
 					spriteBatch.Draw(
 						TextureAssets.InventoryBack13.Value,

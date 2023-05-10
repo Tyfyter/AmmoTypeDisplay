@@ -1,1 +1,2 @@
-Ammo Type Display is a pretty cool mod, it does...this. Modify this file with a description of your mod.
+Makes weapons and tools that consume ammo show what ammo type they use (or what ammo they are currently using), ammo show what ammo type it is, and highlights either when the appropriate type of the other is hovered over
+All of these can be disabled in the config
