@@ -53,15 +53,15 @@ namespace AmmoTypeDisplay {
 			};
 		}
 		public override void Load() {
-			On.Terraria.UI.ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
-			ModTranslation newTranslation = LocalizationLoader.GetOrCreateTranslation("Mods.ShadedItemTag.TooltipTag", true);
+			Terraria.UI.On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
+			LocalizedText newTranslation = Language.GetOrRegister("Mods.ShadedItemTag.TooltipTag", true);
 			if (newTranslation.GetDefault() is null) {
-				newTranslation.SetDefault("i");
-				LocalizationLoader.AddTranslation(newTranslation);
+				// newTranslation.SetDefault("i");
+				LocalizationLoader.AddTranslation(newTranslation)/* tModPorter Note: Removed. Use Language.GetOrRegister */;
 			}
 		}
 		public override void Unload() {
-			On.Terraria.UI.ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color -= ItemSlot_Draw;
+			Terraria.UI.On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color -= ItemSlot_Draw;
 			DisplaySystem.hoverItem = null;
 			DisplaySystem.context = 0;
 			AmmoNames = null;
@@ -73,7 +73,7 @@ namespace AmmoTypeDisplay {
 		public static string GetItemTag(int type) {
 			return $"[{(shadedItemTags ? "si" : "i")}:{type}]";
 		}
-		private static void ItemSlot_Draw(On.Terraria.UI.ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
+		private static void ItemSlot_Draw(Terraria.UI.On_ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
 			DisplaySystem.context = context;
 			orig(spriteBatch, inv, context, slot, position, lightColor);
 		}
