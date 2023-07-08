@@ -1,2 +1,9 @@
 Makes weapons and tools that consume ammo show what ammo type they use (or what ammo they are currently using), ammo show what ammo type it is, and highlights either when the appropriate type of the other is hovered over
 All of these can be disabled in the config
+
+Changelog:
+1.2:
+Fixed current ammo display when no ammo is available
+
+1.1:
+added ShadedItemTag support

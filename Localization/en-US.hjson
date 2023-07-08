@@ -1,0 +1,5 @@
+﻿Mods.AmmoTypeDisplay: {
+	Using: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Using {1}"
+	Uses: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Uses {1}"
+	CountsAs: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Counts as {1}"
+}

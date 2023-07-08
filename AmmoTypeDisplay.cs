@@ -38,6 +38,7 @@ namespace AmmoTypeDisplay {
 	public class AmmoTypeDisplay : Mod {
 		public static Dictionary<int, (string singular, string plural)> AmmoNames { get; private set; }
 		public static HashSet<int> AlreadyDisplayingAmmo { get; private set; }
+		static bool shadedItemTags = false;
 		public AmmoTypeDisplay() : base() {
 			AmmoNames = new() {
 				[AmmoID.Arrow] = ("arrow", "arrows"),
@@ -53,6 +54,11 @@ namespace AmmoTypeDisplay {
 		}
 		public override void Load() {
 			On.Terraria.UI.ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
+			ModTranslation newTranslation = LocalizationLoader.GetOrCreateTranslation("Mods.ShadedItemTag.TooltipTag", true);
+			if (newTranslation.GetDefault() is null) {
+				newTranslation.SetDefault("i");
+				LocalizationLoader.AddTranslation(newTranslation);
+			}
 		}
 		public override void Unload() {
 			On.Terraria.UI.ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color -= ItemSlot_Draw;
@@ -60,6 +66,12 @@ namespace AmmoTypeDisplay {
 			DisplaySystem.context = 0;
 			AmmoNames = null;
 			AlreadyDisplayingAmmo = null;
+		}
+		public override void PostSetupContent() {
+			shadedItemTags = ModLoader.HasMod("ShadedItemTag");
+		}
+		public static string GetItemTag(int type) {
+			return $"[{(shadedItemTags ? "si" : "i")}:{type}]";
 		}
 		private static void ItemSlot_Draw(On.Terraria.UI.ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
 			DisplaySystem.context = context;
@@ -92,13 +104,22 @@ namespace AmmoTypeDisplay {
 		}
 	}
 	public class DisplayGlobalItem : GlobalItem {
+		static string ITag(int type) {
+			return AmmoTypeDisplay.GetItemTag(type);
+		}
+		static string GetTooltip(string key, params object[] replacements) {
+			return Language.GetTextValue("Mods.AmmoTypeDisplay." + key, replacements);
+		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (item.useAmmo > 0 && !AmmoTypeDisplay.AlreadyDisplayingAmmo.Contains(item.type)) {
 				if (!AmmoDisplayConfig.Instance.consumerTooltips) return;
 				if (AmmoDisplayConfig.Instance.consumerCurrent) {
 					Main.LocalPlayer.PickAmmo(item, out _, out _, out _, out _, out int id, true);
-					tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{id}] Using {Lang.GetItemName(id)}"));
-					return;
+					//tooltips.Add(new TooltipLine(Mod, "AmmoType", $"{ITag(id)} Using {Lang.GetItemName(id)}"));
+					if (id > 0) {
+						tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", id, Lang.GetItemName(id))));
+						return;
+					}
 				}
 				string ammoName;
 				if (AmmoTypeDisplay.AmmoNames.TryGetValue(item.useAmmo, out var ammoNames)) {
@@ -106,7 +127,7 @@ namespace AmmoTypeDisplay {
 				} else {
 					ammoName = Lang.GetItemName(item.useAmmo).ToString();
 				}
-				tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{item.useAmmo}] Uses {ammoName}"));
+				tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Uses", item.useAmmo, ammoName)));
 			} else if (item.fishingPole > 1 && AmmoDisplayConfig.Instance.consumerTooltips) {
 				int id = -1;
 				Item[] inventory = Main.LocalPlayer.inventory;
@@ -117,7 +138,7 @@ namespace AmmoTypeDisplay {
 						break;
 					}
 				}
-				if (id >= 0) tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{id}] Using {Lang.GetItemName(id)}"));
+				if (id >= 0) tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", id, Lang.GetItemName(id))));
 			} else if (item.ammo > 0 && AmmoDisplayConfig.Instance.ammoTooltips) {
 				string ammoName = Lang.GetItemName(item.ammo).ToString();
 				bool display = item.ammo != item.type;
@@ -126,7 +147,7 @@ namespace AmmoTypeDisplay {
 					display = true;
 				}
 				if (display) {
-					tooltips.Add(new TooltipLine(Mod, "AmmoType", $"[i:{item.ammo}] Counts as {ammoName}"));
+					tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("CountsAs", item.ammo, ammoName)));
 				}
 			}
 		}
