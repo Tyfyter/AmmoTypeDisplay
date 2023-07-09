@@ -1,13 +1,17 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
+using Terraria.ModLoader.Core;
 using Terraria.UI;
 
 namespace AmmoTypeDisplay {
@@ -15,24 +19,19 @@ namespace AmmoTypeDisplay {
 		public override ConfigScope Mode => ConfigScope.ClientSide;
 		public static AmmoDisplayConfig Instance;
 		[DefaultValue(true)]
-		[Label("Show tooltips on weapons/tools")]
 		public bool consumerTooltips;
 
 		[DefaultValue(false)]
-		[Label("Show current ammo tooltip on weapons/tools")]
 		public bool consumerCurrent;
 
 		[DefaultValue(true)]
-		[Label("Show tooltips on ammo")]
 		public bool ammoTooltips;
 
 
 		[DefaultValue(true)]
-		[Label("Highlight ammo on hover")]
 		public bool highlightAmmo;
 
 		[DefaultValue(true)]
-		[Label("Highlight weapons/tools on hover")]
 		public bool highlightConsumer;
 	}
 	public class AmmoTypeDisplay : Mod {
@@ -53,15 +52,11 @@ namespace AmmoTypeDisplay {
 			};
 		}
 		public override void Load() {
-			Terraria.UI.On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
-			LocalizedText newTranslation = Language.GetOrRegister("Mods.ShadedItemTag.TooltipTag", true);
-			if (newTranslation.GetDefault() is null) {
-				// newTranslation.SetDefault("i");
-				LocalizationLoader.AddTranslation(newTranslation)/* tModPorter Note: Removed. Use Language.GetOrRegister */;
-			}
+			On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
+			Language.GetOrRegister("Mods.ShadedItemTag.TooltipTag", () => "i");
 		}
 		public override void Unload() {
-			Terraria.UI.On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color -= ItemSlot_Draw;
+			On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color -= ItemSlot_Draw;
 			DisplaySystem.hoverItem = null;
 			DisplaySystem.context = 0;
 			AmmoNames = null;
@@ -73,7 +68,7 @@ namespace AmmoTypeDisplay {
 		public static string GetItemTag(int type) {
 			return $"[{(shadedItemTags ? "si" : "i")}:{type}]";
 		}
-		private static void ItemSlot_Draw(Terraria.UI.On_ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
+		private static void ItemSlot_Draw(On_ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
 			DisplaySystem.context = context;
 			orig(spriteBatch, inv, context, slot, position, lightColor);
 		}
@@ -168,7 +163,7 @@ namespace AmmoTypeDisplay {
 					(item.useAmmo > 0 && AmmoDisplayConfig.Instance.highlightConsumer && DisplaySystem.hoverItem?.ammo == item.useAmmo)) {
 					spriteBatch.Draw(
 						TextureAssets.InventoryBack13.Value,
-						position - (new Vector2(52) * Main.inventoryScale) / 2f + frame.Size() * scale / 2f,
+						position - (new Vector2(52) * Main.inventoryScale) / 2f,
 						null,
 						new Color(43, 185, 255, 200) * 0.333f,
 						0,

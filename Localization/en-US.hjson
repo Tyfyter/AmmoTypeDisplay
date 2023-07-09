@@ -1,5 +1,38 @@
-﻿Mods.AmmoTypeDisplay: {
-	Using: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Using {1}"
-	Uses: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Uses {1}"
-	CountsAs: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Counts as {1}"
+Mods: {
+	AmmoTypeDisplay: {
+		Using: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Using {1}"
+		Uses: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Uses {1}"
+		CountsAs: "[{$Mods.ShadedItemTag.TooltipTag}:{0}] Counts as {1}"
+
+		Configs: {
+			AmmoDisplayConfig: {
+				DisplayName: Ammo Display Config
+
+				consumerTooltips: {
+					Label: Show tooltips on weapons/tools
+					Tooltip: ""
+				}
+
+				consumerCurrent: {
+					Label: Show current ammo tooltip on weapons/tools
+					Tooltip: ""
+				}
+
+				ammoTooltips: {
+					Label: Show tooltips on ammo
+					Tooltip: ""
+				}
+
+				highlightAmmo: {
+					Label: Highlight ammo on hover
+					Tooltip: ""
+				}
+
+				highlightConsumer: {
+					Label: Highlight weapons/tools on hover
+					Tooltip: ""
+				}
+			}
+		}
+	}
 }
