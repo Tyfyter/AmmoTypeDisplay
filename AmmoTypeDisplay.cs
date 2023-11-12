@@ -109,10 +109,10 @@ namespace AmmoTypeDisplay {
 			if (item.useAmmo > 0 && !AmmoTypeDisplay.AlreadyDisplayingAmmo.Contains(item.type)) {
 				if (!AmmoDisplayConfig.Instance.consumerTooltips) return;
 				if (AmmoDisplayConfig.Instance.consumerCurrent) {
-					Main.LocalPlayer.PickAmmo(item, out _, out _, out _, out _, out int id, true);
+					Item ammo = Main.LocalPlayer.ChooseAmmo(item);
 					//tooltips.Add(new TooltipLine(Mod, "AmmoType", $"{ITag(id)} Using {Lang.GetItemName(id)}"));
-					if (id > 0) {
-						tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", id, Lang.GetItemName(id))));
+					if (ammo is not null) {
+						tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", ammo.type, ammo.stack, ammo.Name)));
 						return;
 					}
 				}
@@ -124,16 +124,16 @@ namespace AmmoTypeDisplay {
 				}
 				tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Uses", item.useAmmo, ammoName)));
 			} else if (item.fishingPole > 1 && AmmoDisplayConfig.Instance.consumerTooltips) {
-				int id = -1;
+				Item bait = null;
 				Item[] inventory = Main.LocalPlayer.inventory;
 				for (int i = 54; i >= 54 || i < 50; i++) {
 					if (i >= 58) i = 0;
 					if (inventory[i].stack > 0 && inventory[i].bait > 0) {
-						id = inventory[i].type;
+						bait = inventory[i];
 						break;
 					}
 				}
-				if (id >= 0) tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", id, Lang.GetItemName(id))));
+				if (bait is not null) tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", bait.type, bait.stack, bait.Name)));
 			} else if (item.ammo > 0 && AmmoDisplayConfig.Instance.ammoTooltips) {
 				string ammoName = Lang.GetItemName(item.ammo).ToString();
 				bool display = item.ammo != item.type;

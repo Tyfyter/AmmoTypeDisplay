@@ -2,6 +2,9 @@ Makes weapons and tools that consume ammo show what ammo type they use (or what 
 All of these can be disabled in the config
 
 Changelog:
+1.2.2:
+Current ammo display now shows count
+
 1.2:
 Fixed current ammo display when no ammo is available
 
