@@ -37,7 +37,7 @@ namespace AmmoTypeDisplay {
 	public class AmmoTypeDisplay : Mod {
 		public static Dictionary<int, (string singular, string plural)> AmmoNames { get; private set; }
 		public static HashSet<int> AlreadyDisplayingAmmo { get; private set; }
-		static bool shadedItemTags = false;
+		public static bool isModifyingTooltips = false;
 		public AmmoTypeDisplay() : base() {
 			AmmoNames = new() {
 				[AmmoID.Arrow] = ("arrow", "arrows"),
@@ -51,6 +51,14 @@ namespace AmmoTypeDisplay {
 				ItemID.Clentaminator
 			};
 		}
+		public override object Call(params object[] args) {
+			return args[0] switch {
+				"AmmoNames" => AmmoNames,
+				"AlreadyDisplayingAmmo" => AlreadyDisplayingAmmo,
+				"isModifyingTooltips" => (Func<bool>)(() => isModifyingTooltips),
+				_ => null
+			};
+		}
 		public override void Load() {
 			On_ItemSlot.Draw_SpriteBatch_ItemArray_int_int_Vector2_Color += ItemSlot_Draw;
 			Language.GetOrRegister("Mods.ShadedItemTag.TooltipTag", () => "i");
@@ -61,12 +69,6 @@ namespace AmmoTypeDisplay {
 			DisplaySystem.context = 0;
 			AmmoNames = null;
 			AlreadyDisplayingAmmo = null;
-		}
-		public override void PostSetupContent() {
-			shadedItemTags = ModLoader.HasMod("ShadedItemTag");
-		}
-		public static string GetItemTag(int type) {
-			return $"[{(shadedItemTags ? "si" : "i")}:{type}]";
 		}
 		private static void ItemSlot_Draw(On_ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
 			DisplaySystem.context = context;
@@ -99,51 +101,53 @@ namespace AmmoTypeDisplay {
 		}
 	}
 	public class DisplayGlobalItem : GlobalItem {
-		static string ITag(int type) {
-			return AmmoTypeDisplay.GetItemTag(type);
-		}
 		static string GetTooltip(string key, params object[] replacements) {
 			return Language.GetTextValue("Mods.AmmoTypeDisplay." + key, replacements);
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-			if (item.useAmmo > 0 && !AmmoTypeDisplay.AlreadyDisplayingAmmo.Contains(item.type)) {
-				if (!AmmoDisplayConfig.Instance.consumerTooltips) return;
-				if (AmmoDisplayConfig.Instance.consumerCurrent) {
-					Item ammo = Main.LocalPlayer.ChooseAmmo(item);
-					//tooltips.Add(new TooltipLine(Mod, "AmmoType", $"{ITag(id)} Using {Lang.GetItemName(id)}"));
-					if (ammo is not null) {
-						tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", ammo.type, ammo.stack, ammo.Name)));
-						return;
+			try {
+				AmmoTypeDisplay.isModifyingTooltips = true;
+				if (item.useAmmo > 0 && !AmmoTypeDisplay.AlreadyDisplayingAmmo.Contains(item.type)) {
+					if (!AmmoDisplayConfig.Instance.consumerTooltips) return;
+					if (AmmoDisplayConfig.Instance.consumerCurrent) {
+						Item ammo = Main.LocalPlayer.ChooseAmmo(item);
+						//tooltips.Add(new TooltipLine(Mod, "AmmoType", $"{ITag(id)} Using {Lang.GetItemName(id)}"));
+						if (ammo is not null) {
+							tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", ammo.type, ammo.stack, ammo.Name)));
+							return;
+						}
+					}
+					string ammoName;
+					if (AmmoTypeDisplay.AmmoNames.TryGetValue(item.useAmmo, out var ammoNames)) {
+						ammoName = ammoNames.plural;
+					} else {
+						ammoName = Lang.GetItemName(item.useAmmo).ToString();
+					}
+					tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Uses", item.useAmmo, ammoName)));
+				} else if (item.fishingPole > 1 && AmmoDisplayConfig.Instance.consumerTooltips) {
+					Item bait = null;
+					Item[] inventory = Main.LocalPlayer.inventory;
+					for (int i = 54; i >= 54 || i < 50; i++) {
+						if (i >= 58) i = 0;
+						if (inventory[i].stack > 0 && inventory[i].bait > 0) {
+							bait = inventory[i];
+							break;
+						}
+					}
+					if (bait is not null) tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", bait.type, bait.stack, bait.Name)));
+				} else if (item.ammo > 0 && AmmoDisplayConfig.Instance.ammoTooltips) {
+					string ammoName = Lang.GetItemName(item.ammo).ToString();
+					bool display = item.ammo != item.type;
+					if (AmmoTypeDisplay.AmmoNames.TryGetValue(item.ammo, out var tempAmmoName)) {
+						ammoName = tempAmmoName.singular;
+						display = true;
+					}
+					if (display) {
+						tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("CountsAs", item.ammo, ammoName)));
 					}
 				}
-				string ammoName;
-				if (AmmoTypeDisplay.AmmoNames.TryGetValue(item.useAmmo, out var ammoNames)) {
-					ammoName = ammoNames.plural;
-				} else {
-					ammoName = Lang.GetItemName(item.useAmmo).ToString();
-				}
-				tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Uses", item.useAmmo, ammoName)));
-			} else if (item.fishingPole > 1 && AmmoDisplayConfig.Instance.consumerTooltips) {
-				Item bait = null;
-				Item[] inventory = Main.LocalPlayer.inventory;
-				for (int i = 54; i >= 54 || i < 50; i++) {
-					if (i >= 58) i = 0;
-					if (inventory[i].stack > 0 && inventory[i].bait > 0) {
-						bait = inventory[i];
-						break;
-					}
-				}
-				if (bait is not null) tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("Using", bait.type, bait.stack, bait.Name)));
-			} else if (item.ammo > 0 && AmmoDisplayConfig.Instance.ammoTooltips) {
-				string ammoName = Lang.GetItemName(item.ammo).ToString();
-				bool display = item.ammo != item.type;
-				if (AmmoTypeDisplay.AmmoNames.TryGetValue(item.ammo, out var tempAmmoName)) {
-					ammoName = tempAmmoName.singular;
-					display = true;
-				}
-				if (display) {
-					tooltips.Add(new TooltipLine(Mod, "AmmoType", GetTooltip("CountsAs", item.ammo, ammoName)));
-				}
+			} finally {
+				AmmoTypeDisplay.isModifyingTooltips = false;
 			}
 		}
 		public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {

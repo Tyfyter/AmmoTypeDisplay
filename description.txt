@@ -1,7 +1,15 @@
 Makes weapons and tools that consume ammo show what ammo type they use (or what ammo they are currently using), ammo show what ammo type it is, and highlights either when the appropriate type of the other is hovered over
 All of these can be disabled in the config
 
+Calls:
+AmmoNames: returns the Dictionary<int, (string singular, string plural)> of ammo names with plurals
+AlreadyDisplayingAmmo: returns the HashSet<int> of items which already display ammo type 
+isModifyingTooltips: returns a Func<bool> to get whether or not the mod is currently modifying tooltips, primarily for mods which have to detour or IL edit Player.ChooseAmmo and make it return an item other than the one which is actually being used
+
 Changelog:
+1.2.3:
+Added calls
+
 1.2.2:
 Current ammo display now shows count
 
