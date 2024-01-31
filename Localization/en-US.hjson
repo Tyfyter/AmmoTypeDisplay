@@ -32,6 +32,70 @@ Mods: {
 					Label: Highlight weapons/tools on hover
 					Tooltip: ""
 				}
+
+				customWeaponFormatting: {
+					Label: Custom Weapon Formatting (Current)
+					Tooltip:
+						'''
+						The custom formatting to use when displaying the current ammo in use
+						Supports the following substitutions:
+						@ammo: the ammo, displayed using an item chat tag, includes count
+						@ammoName: the name of the ammo
+						@ammoNameColored: the name of the ammo displayed with its rarity color
+						@ammoCount: the amount of ammo in the stack
+						@ammoDamage: the damage of the ammo
+						@ammoDamageClass: the damage type text (including "damage") of the ammo
+						@ammoCrit: the crit chance of the ammo
+						@ammoKnockback: the knockback of the ammo
+						@ammoVelocity: the added shoot speed of the ammo
+						@ammoVelocityMult: the base velocity multiplier of the ammo (some extremely unusual ammo types may not display this correctly)
+						'''
+				}
+
+				customWeaponUsesFormatting: {
+					Label: Custom Weapon Formatting (Base)
+					Tooltip:
+						'''
+						The custom formatting to use when displaying the base ammo type
+						Supports the following substitutions:
+						@ammo: the ammo, displayed using an item chat tag, includes count
+						@ammoName: the name of the ammo
+						@ammoCount: a zero
+						@ammoDamage: the damage of the ammo
+						@ammoDamageClass: the damage type text (including "damage") of the ammo
+						@ammoCrit: the crit chance of the ammo
+						@ammoKnockback: the knockback of the ammo
+						@ammoVelocity: the added shoot speed of the ammo
+						@ammoVelocityMult: the base velocity multiplier of the ammo (some extremely unusual ammo types may not display this correctly)
+						'''
+				}
+
+				customFishingRodFormatting: {
+					Label: Custom Fishing Rod Formatting
+					Tooltip:
+						'''
+						The custom formatting to use when displaying the current bait in use
+						Supports the following substitutions:
+						@ammo: the bait, displayed using an item chat tag, includes count
+						@ammoName: the name of the bait
+						@ammoNameColored: the name of the bait displayed with its rarity color
+						@ammoCount: the amount of bait in the stack
+						@baitPower: the bait power of the bait
+						'''
+				}
+
+				customAmmoFormatting: {
+					Label: Custom Ammo Formatting
+					Tooltip:
+						'''
+						The custom formatting to use when displaying the ammo type
+						Supports the following substitutions:
+						@ammo: the base ammo, displayed using an item chat tag, includes count
+						@ammoName: the name of the base ammo
+						@ammoVelocity: the added shoot speed of the ammo
+						@ammoVelocityMult: the base velocity multiplier of the ammo (some extremely unusual ammo types may not display this correctly)
+						'''
+				}
 			}
 		}
 	}
