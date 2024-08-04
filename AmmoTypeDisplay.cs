@@ -102,6 +102,7 @@ namespace AmmoTypeDisplay {
 		}
 		private static void ItemSlot_Draw(On_ItemSlot.orig_Draw_SpriteBatch_ItemArray_int_int_Vector2_Color orig, SpriteBatch spriteBatch, Item[] inv, int context, int slot, Vector2 position, Color lightColor) {
 			DisplaySystem.context = context;
+			if (inv[slot] is null) inv[slot] = new Item();
 			orig(spriteBatch, inv, context, slot, position, lightColor);
 		}
 	}
